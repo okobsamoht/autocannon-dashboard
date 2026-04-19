@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Press Kit — Autocannon Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --bg:#070d1a;--bg2:#0d1526;--card:#111827;--border:#1f2937;
+      --text:#f9fafb;--muted:#9ca3af;--dim:#6b7280;
+      --blue:#3b82f6;--green:#22c55e;--purple:#8b5cf6;
+    }
+    body{background:var(--bg);color:var(--text);font-family:'Inter',system-ui,sans-serif;line-height:1.6;-webkit-font-smoothing:antialiased}
+    a{color:var(--blue);text-decoration:none}
+    a:hover{text-decoration:underline}
+
+    nav{display:flex;align-items:center;justify-content:space-between;padding:0 2rem;height:60px;border-bottom:1px solid var(--border);background:var(--bg)}
+    .nav-logo{display:flex;align-items:center;gap:10px;font-weight:700;font-size:0.9rem;color:var(--text);text-decoration:none}
+    .nav-icon{width:28px;height:28px;background:var(--blue);border-radius:7px}
+
+    .container{max-width:820px;margin:0 auto;padding:4rem 2rem}
+
+    h1{font-size:2.5rem;font-weight:900;letter-spacing:-0.03em;margin-bottom:0.5rem}
+    h2{font-size:1.25rem;font-weight:700;margin-bottom:1rem;margin-top:3rem;color:var(--text)}
+    h3{font-size:1rem;font-weight:700;margin-bottom:0.5rem}
+    p{color:var(--muted);line-height:1.8;margin-bottom:1rem}
+    ul{color:var(--muted);line-height:2;padding-left:1.25rem;margin-bottom:1rem}
+
+    .subtitle{font-size:1.1rem;color:var(--muted);margin-bottom:3rem}
+
+    .card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.5rem;margin-bottom:1.5rem}
+
+    .label{font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--dim);margin-bottom:0.5rem}
+
+    .asset-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;margin-top:1rem}
+    .asset-card{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:1rem;text-align:center}
+    .asset-preview{height:80px;display:flex;align-items:center;justify-content:center;margin-bottom:0.75rem;border-radius:6px;overflow:hidden}
+    .asset-name{font-size:0.8rem;font-weight:600;margin-bottom:0.25rem}
+    .asset-fmt{font-size:0.7rem;color:var(--dim)}
+    .download-btn{display:inline-block;margin-top:0.5rem;padding:4px 12px;background:var(--border);border-radius:6px;font-size:0.75rem;color:var(--muted);text-decoration:none;transition:background 0.15s}
+    .download-btn:hover{background:var(--blue);color:#fff;text-decoration:none}
+
+    .stat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-top:1rem}
+    .stat-box{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:1rem;text-align:center}
+    .stat-n{font-size:2rem;font-weight:900;color:var(--blue)}
+    .stat-l{font-size:0.75rem;color:var(--dim);margin-top:2px}
+
+    .tag{display:inline-flex;align-items:center;padding:3px 10px;background:rgba(59,130,246,0.1);border:1px solid rgba(59,130,246,0.2);border-radius:6px;font-size:0.75rem;color:#93c5fd;margin:3px}
+
+    .copy-block{background:#050b15;border:1px solid var(--border);border-radius:8px;padding:1rem 1.25rem;font-family:'JetBrains Mono',monospace;font-size:0.8rem;color:#d1fae5;margin:0.75rem 0;white-space:pre-wrap;word-break:break-word}
+
+    .contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:1rem}
+    .contact-item{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:1rem}
+    .contact-role{font-size:0.7rem;color:var(--dim);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px}
+    .contact-name{font-weight:600;margin-bottom:2px}
+    .contact-email{font-size:0.85rem;color:var(--blue)}
+
+    @media(max-width:600px){
+      .stat-row{grid-template-columns:1fr 1fr}
+      .contact-grid{grid-template-columns:1fr}
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-logo" href="index.html">
+    <div class="nav-icon"></div>
+    Autocannon Dashboard
+  </a>
+  <a href="https://github.com/okobsamoht/autocannon-dashboard" style="font-size:0.85rem;color:var(--muted)">← Back to GitHub</a>
+</nav>
+
+<div class="container">
+
+  <div class="label" style="margin-bottom:0.75rem">Press Kit</div>
+  <h1>Media Resources</h1>
+  <p class="subtitle">Everything you need to write about Autocannon Dashboard.</p>
+
+  <!-- ── About ──────────────────────────────────────────── -->
+  <h2>About</h2>
+  <div class="card">
+    <div class="label">One-liner</div>
+    <div class="copy-block">A free, open-source desktop dashboard for autocannon HTTP load testing — real-time charts, latency percentiles, and full configuration without the CLI.</div>
+
+    <div class="label" style="margin-top:1.25rem">Short description (100 words)</div>
+    <div class="copy-block">Autocannon Dashboard is a free Electron desktop app that turns autocannon — the fastest HTTP benchmarking library for Node.js — into a visual, project-driven workflow. Developers create named projects, configure tests through a tabbed UI (no flags, no terminal), hit Run, and watch eight live charts update in real time: requests/sec, throughput, latency percentiles (p50/p90/p99), status codes, errors, cumulative totals, and average response size. Every completed test is stored automatically, browsable as a full report, and exportable to JSON or CSV. It works on Windows, macOS, and Linux. MIT licensed. No account required.</div>
+
+    <div class="label" style="margin-top:1.25rem">Long description</div>
+    <div class="copy-block">Autocannon Dashboard is a free, open-source desktop application for HTTP load testing, built around the autocannon Node.js library. It is designed for developers who already know load testing and want a purpose-built workspace instead of a terminal window.
+
+The app organises tests into projects. Each project holds multiple named test configurations, which expose the full surface of autocannon's API through a four-tab form: basic settings (URL, method, connections, duration or request count, timeout), headers and body (key-value editor, raw/JSON/form modes), advanced options (pipelining, workers, rate limiting, bailout, reconnect rate, socket path, SNI, expected body), and multi-request scenarios for complex sequential flows.
+
+During a test, eight charts update every second from live response data: requests per second, throughput in bytes/sec, four latency percentile lines (p50/p75/p90/p99) on a single chart, req/s vs. mean latency on a dual-axis chart, 2xx vs. non-2xx status codes stacked, errors per second as a bar chart, cumulative request total, and average response size. Eight KPI cards above the charts show the latest tick values at a glance.
+
+Every completed run is persisted and accessible through the result history panel. Full reports include a latency percentile histogram, request and throughput statistics, and error breakdowns. Any result can be exported to JSON or CSV.
+
+The app also logs structured output to the terminal for CI pipelines: a per-tick table with req/s, throughput, p50, and p99, followed by a summary when the test completes.
+
+Autocannon Dashboard runs on Windows, macOS, and Linux, requires no account or network connection, and is licensed under the MIT licence.</div>
+  </div>
+
+  <!-- ── Stats ─────────────────────────────────────────── -->
+  <h2>Key Numbers</h2>
+  <div class="stat-row">
+    <div class="stat-box"><div class="stat-n">8</div><div class="stat-l">Live charts</div></div>
+    <div class="stat-box"><div class="stat-n">20+</div><div class="stat-l">Config options</div></div>
+    <div class="stat-box"><div class="stat-n">0</div><div class="stat-l">Accounts needed</div></div>
+    <div class="stat-box"><div class="stat-n">3</div><div class="stat-l">Platforms</div></div>
+    <div class="stat-box"><div class="stat-n">MIT</div><div class="stat-l">License</div></div>
+    <div class="stat-box"><div class="stat-n">∞</div><div class="stat-l">Projects & results</div></div>
+  </div>
+
+  <!-- ── Tech ──────────────────────────────────────────── -->
+  <h2>Technology</h2>
+  <div class="card">
+    <div>
+      <span class="tag">⚡ autocannon 7</span>
+      <span class="tag">🔵 Electron 33</span>
+      <span class="tag">⚛️ React 18</span>
+      <span class="tag">📦 electron-vite</span>
+      <span class="tag">🎨 Tailwind CSS 3</span>
+      <span class="tag">📊 Recharts 2</span>
+      <span class="tag">💾 electron-store</span>
+      <span class="tag">🔷 Node.js 18+</span>
+    </div>
+    <p style="margin-top:1rem">The main process runs autocannon directly in Node.js and streams per-second snapshots to the React renderer via Electron IPC. Latency percentiles (p50–p99) are computed each second by sorting all response times in the current window — no approximation, no HDR histogram approximation on the client side.</p>
+  </div>
+
+  <!-- ── Assets ─────────────────────────────────────────── -->
+  <h2>Logo & Assets</h2>
+  <div class="asset-grid">
+    <div class="asset-card">
+      <div class="asset-preview" style="background:#0d1526">
+        <svg width="48" height="48" viewBox="0 0 48 48">
+          <rect width="48" height="48" rx="12" fill="#3b82f6"/>
+          <polygon points="26,8 14,28 24,28 22,44 36,24 26,24" fill="white"/>
+        </svg>
+      </div>
+      <div class="asset-name">Logo — Blue</div>
+      <div class="asset-fmt">SVG · transparent</div>
+      <a class="download-btn" href="og.svg" download>Download OG image</a>
+    </div>
+    <div class="asset-card">
+      <div class="asset-preview" style="background:#f9fafb">
+        <svg width="48" height="48" viewBox="0 0 48 48">
+          <rect width="48" height="48" rx="12" fill="#3b82f6"/>
+          <polygon points="26,8 14,28 24,28 22,44 36,24 26,24" fill="white"/>
+        </svg>
+      </div>
+      <div class="asset-name">Logo — On Light</div>
+      <div class="asset-fmt">SVG · white background</div>
+    </div>
+    <div class="asset-card">
+      <div class="asset-preview" style="background:#070d1a">
+        <img src="og.svg" style="width:100%;height:100%;object-fit:cover;border-radius:4px" alt="OG image preview" />
+      </div>
+      <div class="asset-name">Social Preview</div>
+      <div class="asset-fmt">SVG · 1200×630</div>
+      <a class="download-btn" href="og.svg" download>Download</a>
+    </div>
+  </div>
+
+  <!-- ── Colours ─────────────────────────────────────────── -->
+  <h2>Brand Colours</h2>
+  <div class="card">
+    <div style="display:flex;flex-wrap:wrap;gap:1rem">
+      <div>
+        <div style="width:56px;height:56px;border-radius:8px;background:#3b82f6;margin-bottom:6px"></div>
+        <div style="font-size:0.75rem;font-weight:600">Accent Blue</div>
+        <div style="font-size:0.7rem;color:var(--dim);font-family:'JetBrains Mono',monospace">#3b82f6</div>
+      </div>
+      <div>
+        <div style="width:56px;height:56px;border-radius:8px;background:#8b5cf6;margin-bottom:6px"></div>
+        <div style="font-size:0.75rem;font-weight:600">Purple</div>
+        <div style="font-size:0.7rem;color:var(--dim);font-family:'JetBrains Mono',monospace">#8b5cf6</div>
+      </div>
+      <div>
+        <div style="width:56px;height:56px;border-radius:8px;background:#22c55e;margin-bottom:6px"></div>
+        <div style="font-size:0.75rem;font-weight:600">Green</div>
+        <div style="font-size:0.7rem;color:var(--dim);font-family:'JetBrains Mono',monospace">#22c55e</div>
+      </div>
+      <div>
+        <div style="width:56px;height:56px;border-radius:8px;background:#0f172a;border:1px solid #1f2937;margin-bottom:6px"></div>
+        <div style="font-size:0.75rem;font-weight:600">Background</div>
+        <div style="font-size:0.7rem;color:var(--dim);font-family:'JetBrains Mono',monospace">#0f172a</div>
+      </div>
+      <div>
+        <div style="width:56px;height:56px;border-radius:8px;background:#1e293b;border:1px solid #1f2937;margin-bottom:6px"></div>
+        <div style="font-size:0.75rem;font-weight:600">Card</div>
+        <div style="font-size:0.7rem;color:var(--dim);font-family:'JetBrains Mono',monospace">#1e293b</div>
+      </div>
+    </div>
+    <p style="margin-top:1rem">Typography: <strong style="color:var(--text)">Inter</strong> for UI, <strong style="color:var(--text)">JetBrains Mono</strong> for code and metrics.</p>
+  </div>
+
+  <!-- ── Quotes ──────────────────────────────────────────── -->
+  <h2>Approved Quotes</h2>
+  <div class="card">
+    <div class="label">Founder</div>
+    <blockquote style="border-left:2px solid var(--blue);padding-left:1rem;margin:0.5rem 0 1.5rem;font-style:italic;color:var(--muted)">
+      "I built this because I was tired of copy-pasting autocannon flags and staring at a scrolling terminal. Developers deserve a proper dashboard for load testing — something that shows you the data as it happens, and remembers your work."
+      <footer style="margin-top:0.5rem;font-size:0.8rem;font-style:normal;color:var(--dim)">— Thomas Boko, Creator</footer>
+    </blockquote>
+
+    <div class="label">Product</div>
+    <blockquote style="border-left:2px solid var(--purple);padding-left:1rem;margin:0.5rem 0;font-style:italic;color:var(--muted)">
+      "Autocannon Dashboard gives you eight live charts, latency percentiles updated every second, and the full autocannon option surface — all without touching the terminal. It's the developer tool that should have existed from day one."
+      <footer style="margin-top:0.5rem;font-size:0.8rem;font-style:normal;color:var(--dim)">— Official product description</footer>
+    </blockquote>
+  </div>
+
+  <!-- ── Contact ─────────────────────────────────────────── -->
+  <h2>Contact</h2>
+  <div class="contact-grid">
+    <div class="contact-item">
+      <div class="contact-role">Press & Interviews</div>
+      <div class="contact-name">Thomas Boko</div>
+      <div class="contact-email"><a href="mailto:okobsamoht@gmail.com">okobsamoht@gmail.com</a></div>
+    </div>
+    <div class="contact-item">
+      <div class="contact-role">Bug Reports & Features</div>
+      <div class="contact-name">GitHub Issues</div>
+      <div class="contact-email"><a href="https://github.com/okobsamoht/autocannon-dashboard/issues">github.com/okobsamoht/autocannon-dashboard</a></div>
+    </div>
+  </div>
+
+  <!-- ── Links ───────────────────────────────────────────── -->
+  <h2>Links</h2>
+  <div class="card">
+    <table style="width:100%;border-collapse:collapse">
+      <tr style="border-bottom:1px solid var(--border)">
+        <td style="padding:8px 0;color:var(--dim);font-size:0.85rem;width:160px">Website</td>
+        <td style="padding:8px 0"><a href="https://okobsamoht.github.io/autocannon-dashboard">okobsamoht.github.io/autocannon-dashboard</a></td>
+      </tr>
+      <tr style="border-bottom:1px solid var(--border)">
+        <td style="padding:8px 0;color:var(--dim);font-size:0.85rem">GitHub</td>
+        <td style="padding:8px 0"><a href="https://github.com/okobsamoht/autocannon-dashboard">github.com/okobsamoht/autocannon-dashboard</a></td>
+      </tr>
+      <tr style="border-bottom:1px solid var(--border)">
+        <td style="padding:8px 0;color:var(--dim);font-size:0.85rem">Releases</td>
+        <td style="padding:8px 0"><a href="https://github.com/okobsamoht/autocannon-dashboard/releases">github.com/.../releases</a></td>
+      </tr>
+      <tr>
+        <td style="padding:8px 0;color:var(--dim);font-size:0.85rem">License</td>
+        <td style="padding:8px 0">MIT — <a href="https://github.com/okobsamoht/autocannon-dashboard/blob/main/LICENSE">view full text</a></td>
+      </tr>
+    </table>
+  </div>
+
+</div>
+
+</body>
+</html>

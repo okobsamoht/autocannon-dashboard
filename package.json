@@ -1,0 +1,87 @@
+{
+  "name": "autocannon-dashboard",
+  "version": "1.0.0",
+  "description": "A desktop dashboard for autocannon load testing — real-time charts, project management, and full autocannon configuration in a beautiful Electron app.",
+  "main": "out/main/index.js",
+  "author": {
+    "name": "Thomas Boko",
+    "email": "okobsamoht@gmail.com"
+  },
+  "homepage": "https://github.com/okobsamoht/autocannon-dashboard",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/okobsamoht/autocannon-dashboard.git"
+  },
+  "bugs": {
+    "url": "https://github.com/okobsamoht/autocannon-dashboard/issues"
+  },
+  "keywords": [
+    "autocannon",
+    "load-testing",
+    "performance",
+    "benchmarking",
+    "http",
+    "dashboard",
+    "electron",
+    "real-time",
+    "charts",
+    "developer-tools"
+  ],
+  "license": "MIT",
+  "scripts": {
+    "dev": "electron-vite dev",
+    "build": "electron-vite build",
+    "start": "electron-vite preview",
+    "pack": "electron-vite build && electron-builder --dir",
+    "dist": "electron-vite build && electron-builder",
+    "dist:all": "electron-vite build && electron-builder -mwl"
+  },
+  "build": {
+    "appId": "com.autocannon.dashboard",
+    "productName": "Autocannon Dashboard",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "out/**/*",
+      "package.json"
+    ],
+    "win": {
+      "target": "nsis",
+      "icon": "resources/icon.ico"
+    },
+    "mac": {
+      "target": "dmg",
+      "icon": "resources/icon.icns",
+      "category": "public.app-category.developer-tools"
+    },
+    "linux": {
+      "target": ["AppImage", "deb"],
+      "icon": "resources/icon.png",
+      "category": "Development"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
+    }
+  },
+  "private": true,
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.3.4",
+    "autoprefixer": "^10.4.20",
+    "electron": "^33.2.1",
+    "electron-builder": "^25.1.8",
+    "electron-vite": "^2.3.0",
+    "postcss": "^8.4.49",
+    "tailwindcss": "^3.4.17"
+  },
+  "dependencies": {
+    "autocannon": "^7.15.0",
+    "electron-store": "^8.2.0",
+    "lucide-react": "^0.469.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^6.28.0",
+    "recharts": "^2.14.1"
+  }
+}

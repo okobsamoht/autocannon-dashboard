@@ -1,0 +1,1195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Autocannon Dashboard — Desktop load testing, visualised</title>
+  <meta name="description" content="A beautiful Electron desktop app for running, visualising, and managing HTTP load tests powered by autocannon. Real-time charts, project management, and full autocannon configuration." />
+  <meta property="og:title" content="Autocannon Dashboard" />
+  <meta property="og:description" content="Desktop load testing, visualised. Real-time charts, latency percentiles, and full autocannon configuration in a beautiful dark UI." />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="https://okobsamoht.github.io/autocannon-dashboard/og.svg" />
+  <meta property="og:url" content="https://okobsamoht.github.io/autocannon-dashboard/" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:image" content="https://okobsamoht.github.io/autocannon-dashboard/og.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:       #070d1a;
+      --bg2:      #0d1526;
+      --card:     #111827;
+      --border:   #1f2937;
+      --border2:  #374151;
+      --text:     #f9fafb;
+      --muted:    #9ca3af;
+      --dim:      #6b7280;
+      --blue:     #3b82f6;
+      --blue-d:   #2563eb;
+      --purple:   #8b5cf6;
+      --green:    #22c55e;
+      --red:      #ef4444;
+      --yellow:   #f59e0b;
+      --cyan:     #06b6d4;
+      --indigo:   #6366f1;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', system-ui, sans-serif;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    a { color: inherit; text-decoration: none; }
+
+    /* ── Nav ──────────────────────────────────────────────── */
+
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 2rem;
+      height: 64px;
+      background: rgba(7, 13, 26, 0.8);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 700;
+      font-size: 1rem;
+    }
+
+    .nav-logo-icon {
+      width: 32px; height: 32px;
+      background: var(--blue);
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 2rem;
+      list-style: none;
+    }
+
+    .nav-links a {
+      color: var(--muted);
+      font-size: 0.875rem;
+      transition: color 0.15s;
+    }
+    .nav-links a:hover { color: var(--text); }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 0.5rem 1.25rem;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 0.875rem;
+      cursor: pointer;
+      transition: all 0.15s;
+      border: none;
+    }
+
+    .btn-primary {
+      background: var(--blue);
+      color: #fff;
+    }
+    .btn-primary:hover { background: var(--blue-d); transform: translateY(-1px); }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--muted);
+      border: 1px solid var(--border2);
+    }
+    .btn-ghost:hover { color: var(--text); border-color: var(--muted); }
+
+    /* ── Hero ─────────────────────────────────────────────── */
+
+    .hero {
+      position: relative;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 8rem 2rem 4rem;
+      overflow: hidden;
+    }
+
+    .hero-bg {
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      background: radial-gradient(ellipse 80% 60% at 50% -10%, rgba(59,130,246,0.15) 0%, transparent 70%),
+                  radial-gradient(ellipse 50% 40% at 80% 60%, rgba(139,92,246,0.1) 0%, transparent 60%),
+                  radial-gradient(ellipse 40% 30% at 20% 70%, rgba(34,197,94,0.06) 0%, transparent 60%);
+    }
+
+    .hero-grid {
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+      background-size: 40px 40px;
+      mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 30%, transparent 80%);
+    }
+
+    .hero-content { position: relative; z-index: 1; max-width: 860px; }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 12px;
+      border-radius: 100px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      background: rgba(59,130,246,0.12);
+      border: 1px solid rgba(59,130,246,0.25);
+      color: #93c5fd;
+      margin-bottom: 1.5rem;
+    }
+
+    .badge-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--blue);
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+
+    h1 {
+      font-size: clamp(2.5rem, 6vw, 4.5rem);
+      font-weight: 900;
+      line-height: 1.05;
+      letter-spacing: -0.03em;
+      margin-bottom: 1.5rem;
+    }
+
+    .gradient-text {
+      background: linear-gradient(135deg, #60a5fa 0%, #a78bfa 50%, #34d399 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero p {
+      font-size: 1.2rem;
+      color: var(--muted);
+      max-width: 600px;
+      margin: 0 auto 2.5rem;
+      line-height: 1.7;
+    }
+
+    .hero-actions {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-bottom: 4rem;
+    }
+
+    .hero-actions .btn { padding: 0.75rem 1.75rem; font-size: 1rem; }
+
+    /* ── App mockup ──────────────────────────────────────── */
+
+    .mockup-wrapper {
+      position: relative;
+      max-width: 960px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    .mockup-glow {
+      position: absolute;
+      inset: -40px;
+      background: radial-gradient(ellipse 60% 40% at 50% 100%, rgba(59,130,246,0.15), transparent);
+      z-index: 0;
+    }
+
+    .mockup {
+      position: relative;
+      z-index: 1;
+      background: #0d1526;
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 40px 120px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.05);
+    }
+
+    .mockup-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 16px;
+      background: #111827;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .mock-dot { width: 12px; height: 12px; border-radius: 50%; }
+    .mock-dot:nth-child(1) { background: #ef4444; }
+    .mock-dot:nth-child(2) { background: #f59e0b; }
+    .mock-dot:nth-child(3) { background: #22c55e; }
+
+    .mockup-url {
+      flex: 1;
+      text-align: center;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      color: var(--dim);
+    }
+
+    .mockup-body {
+      display: flex;
+      height: 480px;
+    }
+
+    /* Fake sidebar */
+    .mock-sidebar {
+      width: 200px;
+      background: #0a1020;
+      border-right: 1px solid var(--border);
+      padding: 16px 12px;
+      flex-shrink: 0;
+    }
+
+    .mock-logo {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 20px;
+      padding: 0 8px;
+    }
+
+    .mock-logo-icon {
+      width: 28px; height: 28px;
+      background: var(--blue);
+      border-radius: 6px;
+    }
+
+    .mock-logo-text { font-size: 0.75rem; font-weight: 700; color: var(--text); }
+
+    .mock-nav-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 10px;
+      border-radius: 8px;
+      font-size: 0.7rem;
+      color: var(--muted);
+      margin-bottom: 2px;
+    }
+
+    .mock-nav-item.active {
+      background: rgba(59,130,246,0.15);
+      color: #60a5fa;
+    }
+
+    .mock-nav-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; flex-shrink: 0; }
+
+    /* Fake main content */
+    .mock-main {
+      flex: 1;
+      padding: 16px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    /* KPI strip */
+    .mock-kpi {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+    }
+
+    .mock-kpi-card {
+      background: #111827;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 12px;
+    }
+
+    .mock-kpi-label {
+      font-size: 0.55rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--dim);
+      margin-bottom: 4px;
+    }
+
+    .mock-kpi-value {
+      font-size: 1rem;
+      font-weight: 700;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* Fake chart grid */
+    .mock-charts {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      flex: 1;
+    }
+
+    .mock-chart {
+      background: #111827;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 12px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .mock-chart-title {
+      font-size: 0.6rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--dim);
+      margin-bottom: 6px;
+    }
+
+    .mock-chart-area {
+      flex: 1;
+      position: relative;
+    }
+
+    /* Animated SVG sparklines */
+    .sparkline { width: 100%; height: 100%; overflow: visible; }
+    .sparkline path { fill: none; stroke-width: 1.5; stroke-linecap: round; }
+    .sparkline .fill { fill-opacity: 0.15; stroke: none; }
+
+    /* Progress bar in mockup */
+    .mock-progress {
+      background: #111827;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 12px;
+    }
+
+    .mock-progress-bar-track {
+      height: 4px;
+      background: var(--border2);
+      border-radius: 2px;
+      margin-top: 8px;
+      overflow: hidden;
+    }
+
+    .mock-progress-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--blue), var(--purple));
+      border-radius: 2px;
+      width: 65%;
+      animation: progress 3s ease-in-out infinite alternate;
+    }
+
+    @keyframes progress {
+      from { width: 30%; }
+      to { width: 85%; }
+    }
+
+    /* ── Stats bar ─────────────────────────────────────────── */
+
+    .stats-bar {
+      display: flex;
+      justify-content: center;
+      gap: 4rem;
+      padding: 3rem 2rem;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      background: var(--bg2);
+    }
+
+    .stat { text-align: center; }
+
+    .stat-number {
+      font-size: 2.5rem;
+      font-weight: 900;
+      letter-spacing: -0.03em;
+      background: linear-gradient(135deg, var(--blue), var(--purple));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .stat-label {
+      font-size: 0.875rem;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
+    /* ── Sections ──────────────────────────────────────────── */
+
+    section { padding: 6rem 2rem; }
+
+    .section-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .section-label {
+      display: inline-block;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--blue);
+      margin-bottom: 1rem;
+    }
+
+    .section-title {
+      font-size: clamp(1.75rem, 4vw, 2.75rem);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      line-height: 1.15;
+      margin-bottom: 1rem;
+    }
+
+    .section-sub {
+      font-size: 1.1rem;
+      color: var(--muted);
+      max-width: 540px;
+      line-height: 1.7;
+    }
+
+    /* ── Features grid ─────────────────────────────────────── */
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1.5rem;
+      margin-top: 3rem;
+    }
+
+    .feature-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 1.75rem;
+      transition: border-color 0.2s, transform 0.2s;
+    }
+
+    .feature-card:hover {
+      border-color: var(--border2);
+      transform: translateY(-2px);
+    }
+
+    .feature-icon {
+      width: 44px; height: 44px;
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.25rem;
+      margin-bottom: 1rem;
+    }
+
+    .feature-card h3 {
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+
+    .feature-card p {
+      font-size: 0.875rem;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+
+    /* ── Charts showcase ──────────────────────────────────── */
+
+    .charts-showcase {
+      background: var(--bg2);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .chart-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1rem;
+      margin-top: 3rem;
+    }
+
+    .chart-pill {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1rem 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .chart-pill-dot {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .chart-pill-name {
+      font-size: 0.875rem;
+      font-weight: 500;
+    }
+
+    .chart-pill-desc {
+      font-size: 0.75rem;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    /* ── How it works ─────────────────────────────────────── */
+
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 2rem;
+      margin-top: 3rem;
+      position: relative;
+    }
+
+    .step {
+      position: relative;
+      padding-left: 1rem;
+    }
+
+    .step-number {
+      font-size: 3rem;
+      font-weight: 900;
+      line-height: 1;
+      background: linear-gradient(135deg, var(--border2), var(--border));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 0.75rem;
+    }
+
+    .step h3 {
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+
+    .step p {
+      font-size: 0.875rem;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+
+    /* ── Console block ────────────────────────────────────── */
+
+    .console-block {
+      background: #050b15;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 0;
+      overflow: hidden;
+      margin-top: 3rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+    }
+
+    .console-bar {
+      background: #0d1526;
+      border-bottom: 1px solid var(--border);
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .console-bar span {
+      width: 12px; height: 12px;
+      border-radius: 50%;
+    }
+    .console-bar span:nth-child(1) { background: #ef4444; }
+    .console-bar span:nth-child(2) { background: #f59e0b; }
+    .console-bar span:nth-child(3) { background: #22c55e; }
+
+    .console-bar p {
+      font-size: 0.7rem;
+      color: var(--dim);
+      margin-left: 8px;
+    }
+
+    .console-body {
+      padding: 1.25rem 1.5rem;
+      line-height: 2;
+      overflow-x: auto;
+    }
+
+    .c-cyan  { color: #22d3ee; }
+    .c-green { color: #4ade80; }
+    .c-red   { color: #f87171; }
+    .c-dim   { color: #4b5563; }
+    .c-white { color: #e5e7eb; }
+    .c-blue  { color: #60a5fa; }
+    .c-bold  { font-weight: 700; }
+
+    /* ── Open source CTA ──────────────────────────────────── */
+
+    .oss-section {
+      background: radial-gradient(ellipse 70% 60% at 50% 50%, rgba(59,130,246,0.08), transparent);
+      text-align: center;
+    }
+
+    .oss-section .section-title { margin: 0 auto 1rem; }
+    .oss-section .section-sub   { margin: 0 auto 2.5rem; }
+
+    .oss-actions {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .oss-actions .btn { padding: 0.75rem 1.75rem; font-size: 1rem; }
+
+    /* ── Tech strip ───────────────────────────────────────── */
+
+    .tech-strip {
+      background: var(--bg2);
+      border-top: 1px solid var(--border);
+    }
+
+    .tech-grid {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 1rem;
+      margin-top: 2rem;
+    }
+
+    .tech-tag {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 0.875rem;
+      color: var(--muted);
+      font-weight: 500;
+      transition: border-color 0.15s, color 0.15s;
+    }
+
+    .tech-tag:hover {
+      border-color: var(--border2);
+      color: var(--text);
+    }
+
+    /* ── Footer ───────────────────────────────────────────── */
+
+    footer {
+      padding: 2.5rem 2rem;
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1rem;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .footer-logo {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 700;
+      font-size: 0.875rem;
+    }
+
+    .footer-logo-icon {
+      width: 24px; height: 24px;
+      background: var(--blue);
+      border-radius: 6px;
+    }
+
+    .footer-links {
+      display: flex;
+      gap: 1.5rem;
+      list-style: none;
+    }
+
+    .footer-links a {
+      font-size: 0.875rem;
+      color: var(--muted);
+      transition: color 0.15s;
+    }
+    .footer-links a:hover { color: var(--text); }
+
+    .footer-copy {
+      font-size: 0.8rem;
+      color: var(--dim);
+    }
+
+    /* ── Responsive ───────────────────────────────────────── */
+
+    @media (max-width: 768px) {
+      nav { padding: 0 1rem; }
+      .nav-links { display: none; }
+      .stats-bar { gap: 2rem; flex-wrap: wrap; }
+      .mockup-body { height: 320px; }
+      .mock-sidebar { display: none; }
+      .mock-kpi { grid-template-columns: repeat(2, 1fr); }
+      footer { flex-direction: column; align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── Nav ─────────────────────────────────────────────────────────────── -->
+<nav>
+  <div class="nav-logo">
+    <div class="nav-logo-icon">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+      </svg>
+    </div>
+    Autocannon Dashboard
+  </div>
+
+  <ul class="nav-links">
+    <li><a href="#features">Features</a></li>
+    <li><a href="#charts">Charts</a></li>
+    <li><a href="#how-it-works">How it works</a></li>
+    <li><a href="press.html">Press Kit</a></li>
+    <li><a href="https://github.com/okobsamoht/autocannon-dashboard">GitHub</a></li>
+  </ul>
+
+  <a href="https://github.com/okobsamoht/autocannon-dashboard/releases" class="btn btn-primary">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+    Download
+  </a>
+</nav>
+
+<!-- ── Hero ────────────────────────────────────────────────────────────── -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-grid"></div>
+
+  <div class="hero-content">
+    <div class="badge">
+      <span class="badge-dot"></span>
+      Open Source · Free · MIT License
+    </div>
+
+    <h1>
+      Load testing,<br />
+      <span class="gradient-text">beautifully visualised</span>
+    </h1>
+
+    <p>
+      A desktop dashboard for <strong style="color:var(--text)">autocannon</strong> — the fastest HTTP/1.1 benchmarking tool for Node.js.
+      Configure, run, and analyse load tests with real-time charts, latency percentiles,
+      and persistent project management. No CLI required.
+    </p>
+
+    <div class="hero-actions">
+      <a href="https://github.com/okobsamoht/autocannon-dashboard/releases" class="btn btn-primary">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Download for free
+      </a>
+      <a href="https://github.com/okobsamoht/autocannon-dashboard" class="btn btn-ghost">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.374 0 0 5.373 0 12c0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.509 11.509 0 0 1 12 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.566 21.797 24 17.3 24 12c0-6.627-5.373-12-12-12z"/></svg>
+        View on GitHub
+      </a>
+    </div>
+
+    <!-- App mockup -->
+    <div class="mockup-wrapper">
+      <div class="mockup-glow"></div>
+      <div class="mockup">
+        <div class="mockup-bar">
+          <div class="mock-dot"></div>
+          <div class="mock-dot"></div>
+          <div class="mock-dot"></div>
+          <div class="mockup-url">Autocannon Dashboard — API Stress Test</div>
+        </div>
+        <div class="mockup-body">
+          <!-- Sidebar -->
+          <div class="mock-sidebar">
+            <div class="mock-logo">
+              <div class="mock-logo-icon"></div>
+              <div>
+                <div class="mock-logo-text">Autocannon</div>
+                <div style="font-size:0.6rem;color:var(--dim)">Dashboard</div>
+              </div>
+            </div>
+
+            <div class="mock-nav-item" style="color:var(--dim);font-size:0.7rem;padding:4px 10px;margin-bottom:6px">PROJECTS</div>
+            <div class="mock-nav-item active">
+              <div class="mock-nav-dot"></div> API Gateway
+            </div>
+            <div class="mock-nav-item">
+              <div class="mock-nav-dot"></div> User Service
+            </div>
+            <div class="mock-nav-item">
+              <div class="mock-nav-dot"></div> Auth Service
+            </div>
+          </div>
+
+          <!-- Main -->
+          <div class="mock-main">
+            <!-- Progress -->
+            <div class="mock-progress">
+              <div style="display:flex;justify-content:space-between;align-items:center">
+                <span style="font-size:0.7rem;font-weight:600;color:var(--text)">Running…</span>
+                <span style="font-size:0.65rem;color:var(--dim);font-family:'JetBrains Mono',monospace">18s / 30s</span>
+              </div>
+              <div class="mock-progress-bar-track">
+                <div class="mock-progress-bar-fill"></div>
+              </div>
+            </div>
+
+            <!-- KPI strip -->
+            <div class="mock-kpi">
+              <div class="mock-kpi-card">
+                <div class="mock-kpi-label">Req/s</div>
+                <div class="mock-kpi-value" style="color:var(--blue)" id="kpi-rps">12,840</div>
+              </div>
+              <div class="mock-kpi-card">
+                <div class="mock-kpi-label">Throughput</div>
+                <div class="mock-kpi-value" style="color:var(--green)" id="kpi-tp">3.1 MB/s</div>
+              </div>
+              <div class="mock-kpi-card">
+                <div class="mock-kpi-label">Lat p50</div>
+                <div class="mock-kpi-value" style="color:var(--purple)" id="kpi-p50">3.8ms</div>
+              </div>
+              <div class="mock-kpi-card">
+                <div class="mock-kpi-label">Lat p99</div>
+                <div class="mock-kpi-value" style="color:var(--red)" id="kpi-p99">12.4ms</div>
+              </div>
+            </div>
+
+            <!-- Charts -->
+            <div class="mock-charts">
+              <div class="mock-chart">
+                <div class="mock-chart-title">Requests / sec</div>
+                <div class="mock-chart-area">
+                  <svg class="sparkline" viewBox="0 0 200 60" preserveAspectRatio="none">
+                    <path class="fill" d="M0,45 C20,42 40,38 60,35 C80,32 100,28 120,30 C140,32 160,26 180,22 L200,20 L200,60 L0,60 Z" fill="#3b82f620"/>
+                    <path d="M0,45 C20,42 40,38 60,35 C80,32 100,28 120,30 C140,32 160,26 180,22 L200,20" stroke="#3b82f6"/>
+                  </svg>
+                </div>
+              </div>
+              <div class="mock-chart">
+                <div class="mock-chart-title">Latency p50 / p90 / p99</div>
+                <div class="mock-chart-area">
+                  <svg class="sparkline" viewBox="0 0 200 60" preserveAspectRatio="none">
+                    <path d="M0,50 C30,48 60,47 90,46 C120,45 150,44 200,43" stroke="#22c55e"/>
+                    <path d="M0,40 C30,39 60,36 90,38 C120,40 150,37 200,35" stroke="#f59e0b"/>
+                    <path d="M0,30 C30,28 60,32 90,27 C120,22 150,25 200,20" stroke="#ef4444"/>
+                  </svg>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Stats ────────────────────────────────────────────────────────────── -->
+<div class="stats-bar">
+  <div class="stat">
+    <div class="stat-number">8</div>
+    <div class="stat-label">Live charts</div>
+  </div>
+  <div class="stat">
+    <div class="stat-number">20+</div>
+    <div class="stat-label">Autocannon options</div>
+  </div>
+  <div class="stat">
+    <div class="stat-number">p99</div>
+    <div class="stat-label">Real-time percentiles</div>
+  </div>
+  <div class="stat">
+    <div class="stat-number">0</div>
+    <div class="stat-label">Accounts needed</div>
+  </div>
+</div>
+
+<!-- ── Features ─────────────────────────────────────────────────────────── -->
+<section id="features">
+  <div class="section-inner">
+    <span class="section-label">Features</span>
+    <h2 class="section-title">Everything you need to<br />own your API performance</h2>
+    <p class="section-sub">Built for developers who know autocannon and want to stop copy-pasting flags into a terminal.</p>
+
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon" style="background:rgba(59,130,246,0.12)">📁</div>
+        <h3>Project Management</h3>
+        <p>Organise tests into projects. Each project holds multiple named configurations, each with its own result history. Switch between them in one click.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon" style="background:rgba(139,92,246,0.12)">⚙️</div>
+        <h3>Full Autocannon Config</h3>
+        <p>Every option autocannon exposes — connections, pipelining, rate limiting, multi-request scenarios, bailout, socket paths — available through a clean tabbed form. No CLI flags.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon" style="background:rgba(34,197,94,0.12)">📈</div>
+        <h3>Real-Time Charts</h3>
+        <p>Eight live charts update every second: req/s, throughput, latency percentiles (p50/p75/p90/p99), status codes, errors, cumulative requests, and avg response size.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon" style="background:rgba(239,68,68,0.12)">🎯</div>
+        <h3>Latency Percentiles Live</h3>
+        <p>p50, p75, p90, and p99 computed per second from actual response times — not approximations. Watch how your tail latency behaves under sustained load.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon" style="background:rgba(6,182,212,0.12)">📦</div>
+        <h3>Result History & Export</h3>
+        <p>Every completed test is stored automatically. Browse past runs, compare metrics, and export any result to JSON or CSV with a native save dialog.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon" style="background:rgba(245,158,11,0.12)">🖥️</div>
+        <h3>Console Logging</h3>
+        <p>Every tick printed to the terminal where the app launched: req/s, throughput, errors, p50, p99. Full summary on completion — great for CI output.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Charts showcase ────────────────────────────────────────────────────── -->
+<section id="charts" class="charts-showcase">
+  <div class="section-inner">
+    <span class="section-label">Visualisations</span>
+    <h2 class="section-title">Eight charts. One test run.</h2>
+    <p class="section-sub">Every chart updates every second from live response data — not sampled, not approximated.</p>
+
+    <div class="chart-list">
+      <div class="chart-pill">
+        <div class="chart-pill-dot" style="background:var(--blue)"></div>
+        <div>
+          <div class="chart-pill-name">Requests / sec</div>
+          <div class="chart-pill-desc">Area chart · per-second window</div>
+        </div>
+      </div>
+      <div class="chart-pill">
+        <div class="chart-pill-dot" style="background:var(--green)"></div>
+        <div>
+          <div class="chart-pill-name">Throughput</div>
+          <div class="chart-pill-desc">Bytes/sec · area chart</div>
+        </div>
+      </div>
+      <div class="chart-pill">
+        <div class="chart-pill-dot" style="background:var(--purple)"></div>
+        <div>
+          <div class="chart-pill-name">Latency Percentiles</div>
+          <div class="chart-pill-desc">p50 · p75 · p90 · p99 multi-line</div>
+        </div>
+      </div>
+      <div class="chart-pill">
+        <div class="chart-pill-dot" style="background:#8b5cf6"></div>
+        <div>
+          <div class="chart-pill-name">Req/s vs Latency</div>
+          <div class="chart-pill-desc">Dual-axis · throughput trade-off</div>
+        </div>
+      </div>
+      <div class="chart-pill">
+        <div class="chart-pill-dot" style="background:var(--green)"></div>
+        <div>
+          <div class="chart-pill-name">Status Codes</div>
+          <div class="chart-pill-desc">2xx vs non-2xx · stacked bar</div>
+        </div>
+      </div>
+      <div class="chart-pill">
+        <div class="chart-pill-dot" style="background:var(--red)"></div>
+        <div>
+          <div class="chart-pill-name">Errors / sec</div>
+          <div class="chart-pill-desc">Per-tick delta · bar chart</div>
+        </div>
+      </div>
+      <div class="chart-pill">
+        <div class="chart-pill-dot" style="background:var(--indigo)"></div>
+        <div>
+          <div class="chart-pill-name">Cumulative Requests</div>
+          <div class="chart-pill-desc">Running total · area</div>
+        </div>
+      </div>
+      <div class="chart-pill">
+        <div class="chart-pill-dot" style="background:var(--cyan)"></div>
+        <div>
+          <div class="chart-pill-name">Avg Response Size</div>
+          <div class="chart-pill-desc">Bytes per response · area</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── How it works ────────────────────────────────────────────────────── -->
+<section id="how-it-works">
+  <div class="section-inner">
+    <span class="section-label">How it works</span>
+    <h2 class="section-title">From zero to benchmark<br />in under a minute</h2>
+
+    <div class="steps">
+      <div class="step">
+        <div class="step-number">01</div>
+        <h3>Create a project</h3>
+        <p>Group related services together. Give the project a name and optional description — it's just an organisational folder.</p>
+      </div>
+      <div class="step">
+        <div class="step-number">02</div>
+        <h3>Configure your test</h3>
+        <p>Set the URL, method, connections, duration, headers, body, and any advanced option through the tabbed form. Save it with a name.</p>
+      </div>
+      <div class="step">
+        <div class="step-number">03</div>
+        <h3>Hit Run</h3>
+        <p>Charts fill in live. Watch latency percentiles, req/s, and status codes update every second. Stop early anytime.</p>
+      </div>
+      <div class="step">
+        <div class="step-number">04</div>
+        <h3>Analyse & export</h3>
+        <p>Browse the full result: latency histogram, request totals, error breakdown. Export to JSON or CSV. History saved automatically.</p>
+      </div>
+    </div>
+
+    <!-- Console output -->
+    <div class="console-block">
+      <div class="console-bar">
+        <span></span><span></span><span></span>
+        <p>Terminal — npm run dev</p>
+      </div>
+      <div class="console-body">
+        <div><span class="c-cyan c-bold">┌─ Autocannon ──────────────────────────────────────────┐</span></div>
+        <div><span class="c-cyan">│</span>  <span class="c-white">Target:</span>  <span class="c-blue">http://localhost:3000/api/users</span></div>
+        <div><span class="c-cyan">│</span>  <span class="c-white">Config:</span>  50 conn · 1 pipeline · 30s</div>
+        <div><span class="c-cyan c-bold">└───────────────────────────────────────────────────────┘</span></div>
+        <div><span class="c-dim">  Tick │    Req/s │ Throughput │ Errors │ Total reqs │  Lat p50 │  Lat p99</span></div>
+        <div><span class="c-dim"> ──────┼──────────┼────────────┼────────┼────────────┼──────────┼─────────</span></div>
+        <div><span class="c-dim">    1s │</span>  <span class="c-white"> 12,840</span> <span class="c-dim">│</span>   <span class="c-white">3.1MB/s</span>  <span class="c-dim">│</span> <span class="c-green">     0</span> <span class="c-dim">│</span>     <span class="c-white">12,840</span> <span class="c-dim">│</span>   <span class="c-white">3.8ms</span>  <span class="c-dim">│</span>   <span class="c-white">9.1ms</span></div>
+        <div><span class="c-dim">    2s │</span>  <span class="c-white"> 13,102</span> <span class="c-dim">│</span>   <span class="c-white">3.2MB/s</span>  <span class="c-dim">│</span> <span class="c-green">     0</span> <span class="c-dim">│</span>     <span class="c-white">25,942</span> <span class="c-dim">│</span>   <span class="c-white">3.7ms</span>  <span class="c-dim">│</span>   <span class="c-white">8.4ms</span></div>
+        <div><span class="c-dim">    3s │</span>  <span class="c-white"> 12,994</span> <span class="c-dim">│</span>   <span class="c-white">3.1MB/s</span>  <span class="c-dim">│</span> <span class="c-green">     0</span> <span class="c-dim">│</span>     <span class="c-white">38,936</span> <span class="c-dim">│</span>   <span class="c-white">3.9ms</span>  <span class="c-dim">│</span>  <span class="c-white">11.2ms</span></div>
+        <div><span class="c-dim"> ──────┴──────────┴────────────┴────────┴────────────┴──────────┴─────────</span></div>
+        <div>&nbsp;</div>
+        <div>  <span class="c-green c-bold">✓ Done</span></div>
+        <div>  <span class="c-dim">Requests:  </span> 391,540 total · <span class="c-bold">13,051 req/s</span> avg</div>
+        <div>  <span class="c-dim">Throughput:</span> 3.1 MB/s avg</div>
+        <div>  <span class="c-dim">Latency:   </span> p50 <span class="c-bold">3.8ms</span> · p90 <span class="c-bold">7.2ms</span> · p99 <span class="c-bold">12.4ms</span> · max <span class="c-bold">94ms</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Tech stack ─────────────────────────────────────────────────────── -->
+<section class="tech-strip">
+  <div class="section-inner" style="text-align:center">
+    <span class="section-label">Built with</span>
+    <div class="tech-grid">
+      <div class="tech-tag">⚡ autocannon 7</div>
+      <div class="tech-tag">🔵 Electron 33</div>
+      <div class="tech-tag">⚛️ React 18</div>
+      <div class="tech-tag">📦 electron-vite</div>
+      <div class="tech-tag">🎨 Tailwind CSS</div>
+      <div class="tech-tag">📊 Recharts</div>
+      <div class="tech-tag">💾 electron-store</div>
+      <div class="tech-tag">🔷 Node.js 18+</div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Open source CTA ─────────────────────────────────────────────────── -->
+<section class="oss-section">
+  <div class="section-inner">
+    <span class="section-label" style="display:block;text-align:center">Open Source</span>
+    <h2 class="section-title" style="text-align:center">Free. Forever. MIT.</h2>
+    <p class="section-sub" style="text-align:center">
+      Autocannon Dashboard is fully open source. Star it, fork it, contribute to it.
+      No subscriptions, no feature gating, no telemetry.
+    </p>
+
+    <div class="oss-actions">
+      <a href="https://github.com/okobsamoht/autocannon-dashboard/releases" class="btn btn-primary">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Download free
+      </a>
+      <a href="https://github.com/okobsamoht/autocannon-dashboard" class="btn btn-ghost">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.374 0 0 5.373 0 12c0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.509 11.509 0 0 1 12 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.566 21.797 24 17.3 24 12c0-6.627-5.373-12-12-12z"/></svg>
+        View source
+      </a>
+      <a href="https://github.com/okobsamoht/autocannon-dashboard/issues/new?template=feature_request.md" class="btn btn-ghost">
+        💡 Request a feature
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ── Footer ──────────────────────────────────────────────────────────── -->
+<footer>
+  <div class="footer-logo">
+    <div class="footer-logo-icon"></div>
+    Autocannon Dashboard
+  </div>
+
+  <ul class="footer-links">
+    <li><a href="https://github.com/okobsamoht/autocannon-dashboard">GitHub</a></li>
+    <li><a href="https://github.com/okobsamoht/autocannon-dashboard/releases">Releases</a></li>
+    <li><a href="https://github.com/okobsamoht/autocannon-dashboard/issues">Issues</a></li>
+    <li><a href="https://github.com/okobsamoht/autocannon-dashboard/blob/main/LICENSE">MIT License</a></li>
+  </ul>
+
+  <p class="footer-copy">© 2024 Thomas Boko</p>
+</footer>
+
+<script>
+  // Animate KPI values in the mockup
+  const rpsValues  = ['11,204', '12,840', '13,102', '12,994', '13,441', '12,708'];
+  const tpValues   = ['2.8 MB/s', '3.1 MB/s', '3.2 MB/s', '3.1 MB/s', '3.3 MB/s', '3.1 MB/s'];
+  const p50Values  = ['3.4ms', '3.8ms', '3.7ms', '3.9ms', '3.6ms', '3.8ms'];
+  const p99Values  = ['9.1ms', '12.4ms', '8.4ms', '11.2ms', '10.8ms', '13.1ms'];
+
+  let i = 0;
+  setInterval(() => {
+    i = (i + 1) % rpsValues.length;
+    const rps = document.getElementById('kpi-rps');
+    const tp  = document.getElementById('kpi-tp');
+    const p50 = document.getElementById('kpi-p50');
+    const p99 = document.getElementById('kpi-p99');
+    if (rps) rps.textContent = rpsValues[i];
+    if (tp)  tp.textContent  = tpValues[i];
+    if (p50) p50.textContent = p50Values[i];
+    if (p99) p99.textContent = p99Values[i];
+  }, 1000);
+</script>
+
+</body>
+</html>
